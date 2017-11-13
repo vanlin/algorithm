@@ -134,10 +134,42 @@ final public class RBTree<K, V> {
      *
      * @param node
      */
-    private void rebalance(final Node<K, V> node) {
+    private void rebalance(Node<K, V> node) {
         node.color = RED;
         while (node != null && node != root && parentOf(node).color == RED) {
-
+            if (parentOf(node) == leftOf(parentOf(parentOf(node)))) { // 如果父节点在祖父节点 的 左节点上
+                Node<K, V> rightUncleNode = rightOf(parentOf(parentOf(node))); // 取祖父节点右节点(叔节点)
+                if (colorOf(rightUncleNode) == RED) { //
+                    setColor(parentOf(node), BLACK); // 置父节点为黑色
+                    setColor(rightUncleNode, BLACK);
+                    setColor(parentOf(parentOf(node)), RED); // 祖父节点置红色
+                    node = parentOf(parentOf(node)); // 开始处理祖父节点
+                } else {
+                    if (node == rightOf(parentOf(node))) { // 如果在右节点上 需要针对 父节点左旋
+                        node = parentOf(node);
+                        rotateLeft(node);
+                    }
+                    setColor(parentOf(node), BLACK); // 将左旋节点置黑
+                    setColor(parentOf(parentOf(node)), RED);
+                    rotateRight(parentOf(parentOf(node))); // 将祖父节点右旋
+                }
+            } else { // 父节点中祖父节点 右节点上
+                Node<K, V> leftUncleNode = leftOf(parentOf(parentOf(node))); // 取祖父节点左节点 （叔节点）
+                if (colorOf(leftUncleNode) == RED) {
+                    setColor(parentOf(node), BLACK);
+                    setColor(leftUncleNode, BLACK);
+                    setColor(parentOf(parentOf(node)), RED);
+                    node = parentOf(parentOf(node));
+                } else {
+                    if (node == leftOf(parentOf(node))) {
+                        node = parentOf(node);
+                        rotateRight(node);
+                    }
+                    setColor(parentOf(node), BLACK);
+                    setColor(parentOf(parentOf(node)), RED);
+                    rotateLeft(parentOf(parentOf(node)));
+                }
+            }
         }
         root.color = BLACK;
     }
@@ -155,6 +187,9 @@ final public class RBTree<K, V> {
         node.color = color;
     }
     private boolean colorOf(final Node<K, V> node) {
+        if (Objects.isNull(node)) {
+            return BLACK;
+        }
         return node.color;
     }
     /**

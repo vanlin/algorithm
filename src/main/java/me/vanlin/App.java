@@ -13,10 +13,16 @@ public class App {
     public static void main(String[] args) {
         RBTree<String, String> tree = new RBTree<>();
 
-        tree.put("hello", "123");
-        tree.put("world", "223");
+        tree.put("1", "a");
+        tree.put("2", "b");
+        tree.put("3", "c");
+        tree.put("4", "d");
+        tree.put("5", "e");
 
-        System.out.println(tree.get("hello"));
-        System.out.println(tree.get("world"));
+        System.out.println(tree.get("1"));
+        System.out.println(tree.get("2"));
+        System.out.println(tree.get("3"));
+        System.out.println(tree.get("4"));
+        System.out.println(tree.get("5"));
     }
 }
