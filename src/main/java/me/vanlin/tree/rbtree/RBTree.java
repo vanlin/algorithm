@@ -125,26 +125,55 @@ final public class RBTree<K, V> {
         } else {
             parent.rightNode = node;
         }
-        rebalance(node);
+        rebalanceInsertion(node);
         size++;
         return value;
+    }
+
+    public V remove(K key) {
+        Node<K, V> node = getNode(key);
+        if (Objects.isNull(node)) {
+            return null;
+        }
+
+        V value = node.value;
+        deleteNode(key);
+        return value;
+    }
+
+    /**
+     * 删除节点
+     * @param key
+     */
+    private void deleteNode(K key) {
+
     }
 
     /**
      *
      * @param node
+     * @see http://blog.csdn.net/hackbuteer1/article/details/7760584
      */
-    private void rebalance(Node<K, V> node) {
+    private void rebalanceDeletion(Node<K, V> node) {
+
+    }
+
+    /**
+     *
+     * @param node
+     * @see http://blog.csdn.net/hackbuteer1/article/details/7740956
+     */
+    private void rebalanceInsertion(Node<K, V> node) {
         node.color = RED;
         while (node != null && node != root && parentOf(node).color == RED) {
             if (parentOf(node) == leftOf(parentOf(parentOf(node)))) { // 如果父节点在祖父节点 的 左节点上
                 Node<K, V> rightUncleNode = rightOf(parentOf(parentOf(node))); // 取祖父节点右节点(叔节点)
-                if (colorOf(rightUncleNode) == RED) { //
+                if (colorOf(rightUncleNode) == RED) { //  红叔在右  更换颜色 向上迭代
                     setColor(parentOf(node), BLACK); // 置父节点为黑色
                     setColor(rightUncleNode, BLACK);
                     setColor(parentOf(parentOf(node)), RED); // 祖父节点置红色
                     node = parentOf(parentOf(node)); // 开始处理祖父节点
-                } else {
+                } else { // 右边是黑叔
                     if (node == rightOf(parentOf(node))) { // 如果在右节点上 需要针对 父节点左旋
                         node = parentOf(node);
                         rotateLeft(node);
@@ -155,12 +184,12 @@ final public class RBTree<K, V> {
                 }
             } else { // 父节点中祖父节点 右节点上
                 Node<K, V> leftUncleNode = leftOf(parentOf(parentOf(node))); // 取祖父节点左节点 （叔节点）
-                if (colorOf(leftUncleNode) == RED) {
+                if (colorOf(leftUncleNode) == RED) { //  红叔在左  更换颜色 向上迭代
                     setColor(parentOf(node), BLACK);
                     setColor(leftUncleNode, BLACK);
                     setColor(parentOf(parentOf(node)), RED);
                     node = parentOf(parentOf(node));
-                } else {
+                } else {// 左边是黑叔
                     if (node == leftOf(parentOf(node))) {
                         node = parentOf(node);
                         rotateRight(node);
