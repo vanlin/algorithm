@@ -14,7 +14,7 @@ final public class RBTree<K, V> {
     private static final boolean BLACK = true;
 
     static class Node<K, V> implements Comparable<K> {
-        final private K key;
+        private K key;
         private V value;
         boolean color = BLACK;  //默认黑色
 
@@ -131,31 +131,171 @@ final public class RBTree<K, V> {
     }
 
     public V remove(K key) {
-        Node<K, V> node = getNode(key);
+        final Node<K, V> node = getNode(key); // 找到节点
         if (Objects.isNull(node)) {
             return null;
         }
 
+
+
         V value = node.value;
-        deleteNode(key);
+        deleteNode(node);
         return value;
     }
 
     /**
      * 删除节点
-     * @param key
+     * @param node
      */
-    private void deleteNode(K key) {
+    private V deleteNode(Node<K,V> node) {
+        size--;
 
+        // 被删除节点的左子树和右子树都不为空， 那么就用 node节点的中序后继节点代替node节点
+        if (Objects.nonNull(node.leftNode) && Objects.nonNull(node.rightNode)) {
+            Node<K, V> successor = successor(node);
+            node.key = successor.key;
+            node.value = successor.value;
+            node = successor;
+        }
+
+        // 如果node的左子树存在 就用左子树替代  否则用右子树
+        Node<K, V> replacement = (Objects.nonNull(node.leftNode) ? node.leftNode: node.rightNode);
+
+        // 如果替代节点不为空
+        if (Objects.nonNull(replacement)) {
+            replacement.parentNode = node.parentNode;
+            // 如果为根 则 replacement 为根
+            if (Objects.isNull(node.parentNode)) {
+                root = replacement;
+                // 如果node为左节点 用 replacement 替代左节点
+            } else if(node == node.parentNode.leftNode) {
+                node.parentNode.leftNode = replacement;
+            } else { // 用 replacement 替代 右节点
+                node.parentNode.rightNode = replacement;
+            }
+
+            node.leftNode = node.rightNode = node.parentNode = null;
+
+            if (node.color == BLACK) {
+                rebalanceDeletion(replacement);
+            }
+        } else if (Objects.isNull(node.parentNode)) {
+            root = null;
+        } else {
+            if (node.color == BLACK) {
+                rebalanceDeletion(node);
+            }
+
+            if (Objects.nonNull(node.parentNode)) {
+                if (node == node.parentNode.leftNode) {
+                    node.parentNode.leftNode = null;
+                } else if (node == node.parentNode.rightNode) {
+                    node.parentNode.rightNode = null;
+                }
+
+                node.parentNode = null;
+            }
+        }
+
+        return node.value;
+    }
+
+    /**
+     * 后继结点
+     * @param node
+     * @return
+     * @see http://www.importnew.com/19074.html
+     */
+    private Node<K, V> successor(Node<K,V> node) {
+        if (node == null)
+            return null;
+        else if (node != null) {
+            // 有右子树的节点，后继节点就是右子树的“最左节点”
+            // 因为“最左子树”是右子树的最小节点
+            Node<K,V> p = node.rightNode;
+            while (p.leftNode != null)
+                p = p.leftNode;
+            return p;
+        } else {
+            // 如果右子树为空，则寻找当前节点所在左子树的第一个祖先节点
+            // 因为左子树找完了，根据LDR该D了
+            Node<K,V> p = node.parentNode;
+            Node<K,V> ch = node;
+            // 保证左子树
+            while (p != null && ch == p.rightNode) {
+                ch = p;
+                p = p.parentNode;
+            }
+            return p;
+        }
     }
 
     /**
      *
      * @param node
      * @see http://blog.csdn.net/hackbuteer1/article/details/7760584
+     * @see http://blog.csdn.net/chenssy/article/details/26668941
      */
     private void rebalanceDeletion(Node<K, V> node) {
+        // 删除节点需要一直迭代， 直到 node不是根节点 且 node的颜色是黑色
+        while (node != root && colorOf(node) == BLACK) {
+            if (node == leftOf(parentOf(node))) { // node是左节点
+                Node<K, V> rightBrother = rightOf(parentOf(node));
 
+                if (colorOf(rightBrother) == RED) { // 如果兄弟节点为红色   改变 W, P颜色 进行一次左旋
+                    setColor(rightBrother, BLACK);
+                    setColor(parentOf(node), RED);
+                    rotateLeft(parentOf(node));
+                    rightBrother = rightOf(parentOf(node));
+                }
+
+                if (colorOf(leftOf(rightBrother)) == BLACK && colorOf(rightOf(rightBrother)) == BLACK) {
+                    setColor(rightBrother, RED);
+                    node = parentOf(node);
+                } else {
+                    if (colorOf(rightOf(rightBrother)) == BLACK) {
+                        setColor(leftOf(rightBrother), BLACK);
+                        setColor(rightBrother, RED);
+                        rotateRight(rightBrother);
+                        rightBrother = rightOf(parentOf(node));
+                    }
+
+                    setColor(rightBrother, colorOf(parentOf(node)));
+                    setColor(parentOf(node), BLACK);
+                    setColor(rightOf(rightBrother), BLACK);
+                    rotateRight(parentOf(node));
+                    node = root;
+                }
+            } else { // node是右节点
+                Node<K, V> leftBrother = leftOf(parentOf(node));
+
+                if (colorOf(leftBrother) == RED) {
+                    setColor(leftBrother, BLACK);
+                    setColor(parentOf(node), BLACK);
+                    rotateRight(parentOf(node));
+                    leftBrother = leftOf(parentOf(node));
+                }
+
+                if (colorOf(rightOf(leftBrother)) == BLACK && colorOf(leftOf(leftBrother)) == BLACK) {
+                    setColor(leftBrother, RED);
+                    node = parentOf(node);
+                } else {
+                    if (colorOf(leftOf(leftBrother)) == BLACK) {
+                        setColor(rightOf(leftBrother), BLACK);
+                        setColor(leftBrother, RED);
+                        rotateLeft(leftBrother);
+                        leftBrother = leftOf(parentOf(node));
+                    }
+
+                    setColor(leftBrother, colorOf(parentOf(node)));
+                    setColor(parentOf(node), BLACK);
+                    setColor(leftOf(leftBrother), BLACK);
+                    rotateRight((parentOf(node)));
+                    node = root;
+                }
+            }
+        }
+        setColor(node, BLACK);
     }
 
     /**

@@ -24,5 +24,13 @@ public class App {
         System.out.println(tree.get("3"));
         System.out.println(tree.get("4"));
         System.out.println(tree.get("5"));
+
+        tree.remove("3");
+
+        System.out.println(tree.get("1"));
+        System.out.println(tree.get("2"));
+        System.out.println(tree.get("3"));
+        System.out.println(tree.get("4"));
+        System.out.println(tree.get("5"));
     }
 }
