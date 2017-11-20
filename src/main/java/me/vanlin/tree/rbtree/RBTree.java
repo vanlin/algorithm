@@ -176,17 +176,17 @@ final public class RBTree<K, V> {
 
             node.leftNode = node.rightNode = node.parentNode = null;
 
-            if (node.color == BLACK) {
+            if (node.color == BLACK) { // 节点为黑色
                 rebalanceDeletion(replacement);
             }
         } else if (Objects.isNull(node.parentNode)) {
             root = null;
         } else {
-            if (node.color == BLACK) {
+            if (node.color == BLACK) { // 节点为黑色
                 rebalanceDeletion(node);
             }
 
-            if (Objects.nonNull(node.parentNode)) {
+            if (Objects.nonNull(node.parentNode)) { // 父节点不为空
                 if (node == node.parentNode.leftNode) {
                     node.parentNode.leftNode = null;
                 } else if (node == node.parentNode.rightNode) {
@@ -243,24 +243,24 @@ final public class RBTree<K, V> {
                 Node<K, V> rightBrother = rightOf(parentOf(node));
 
                 if (colorOf(rightBrother) == RED) { // 如果兄弟节点为红色   改变 W, P颜色 进行一次左旋
-                    setColor(rightBrother, BLACK);
-                    setColor(parentOf(node), RED);
-                    rotateLeft(parentOf(node));
-                    rightBrother = rightOf(parentOf(node));
+                    setColor(rightBrother, BLACK); // 设置兄弟节点为黑色
+                    setColor(parentOf(node), RED); // 设置节点的父节点 为红色
+                    rotateLeft(parentOf(node)); // 父节点 左旋
+                    rightBrother = rightOf(parentOf(node));  // 重新获取右兄弟节点
                 }
 
-                if (colorOf(leftOf(rightBrother)) == BLACK && colorOf(rightOf(rightBrother)) == BLACK) {
-                    setColor(rightBrother, RED);
-                    node = parentOf(node);
-                } else {
-                    if (colorOf(rightOf(rightBrother)) == BLACK) {
-                        setColor(leftOf(rightBrother), BLACK);
-                        setColor(rightBrother, RED);
-                        rotateRight(rightBrother);
-                        rightBrother = rightOf(parentOf(node));
+                if (colorOf(leftOf(rightBrother)) == BLACK && colorOf(rightOf(rightBrother)) == BLACK) { // 兄弟节点 的左右孩子均为黑色
+                    setColor(rightBrother, RED); // 置兄弟节点 为红色
+                    node = parentOf(node); // 指向父节点
+                } else { // 否则
+                    if (colorOf(rightOf(rightBrother)) == BLACK) { //如果兄弟节点右节点 为黑
+                        setColor(leftOf(rightBrother), BLACK);  // 把兄弟节点左节点置黑
+                        setColor(rightBrother, RED); // 把兄弟节点置红 // 基于兄弟节点右旋
+                        rotateRight(rightBrother); // 基于兄弟节点右旋
+                        rightBrother = rightOf(parentOf(node)); // 重新获取右兄弟节点
                     }
 
-                    setColor(rightBrother, colorOf(parentOf(node)));
+                    setColor(rightBrother, colorOf(parentOf(node))); // 用父节点颜色填充
                     setColor(parentOf(node), BLACK);
                     setColor(rightOf(rightBrother), BLACK);
                     rotateRight(parentOf(node));

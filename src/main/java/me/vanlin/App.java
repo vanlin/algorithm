@@ -1,5 +1,6 @@
 package me.vanlin;
 
+import me.vanlin.tree.rbtree.Bean;
 import me.vanlin.tree.rbtree.RBTree;
 
 import java.util.HashMap;
@@ -32,5 +33,6 @@ public class App {
         System.out.println(tree.get("3"));
         System.out.println(tree.get("4"));
         System.out.println(tree.get("5"));
+
     }
 }
