@@ -6,14 +6,14 @@ import java.util.Objects;
 /**
  * 红黑树
  */
-final public class RBTree<K, V> {
+final public class RBTree<K extends Comparable, V> {
     private Node<K, V> root;
     private transient int size = 0;
 
     private static final boolean RED   = false;
     private static final boolean BLACK = true;
 
-    static class Node<K, V> implements Comparable<K> {
+    static class Node<K extends Comparable, V> implements Comparable<K> {
         private K key;
         private V value;
         boolean color = BLACK;  //默认黑色
@@ -29,7 +29,7 @@ final public class RBTree<K, V> {
         }
 
         public int compareTo(final K o) {
-            return 0;
+            return this.key.compareTo(o);
         }
 
         public K getKey() {
