@@ -42,7 +42,7 @@ public class MyClassLoader extends ClassLoader {
                 ClassLoader parent = getParent().getParent();
                 try {
                     System.out.println("try to use ExtClassLoader to load class : " + name);
-                    clazz = parent.loadClass(name);
+                    clazz = parent.loadClass(name);// 如果没有双亲委派模型，，那么 自定义加载的类无法找到 系统 类 比如  java.lang.System  java.lang.Thread这些
                 } catch (ClassNotFoundException e) {
                     System.out.println("ExtClassLoader.loadClass :" + name + " Failed");
                 }
